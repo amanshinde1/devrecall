@@ -24,5 +24,5 @@ class ProblemAdmin(admin.ModelAdmin):
 
 @admin.register(RecallLog)
 class RecallLogAdmin(admin.ModelAdmin):
-    list_display = ("user", "problem", "solved", "confidence", "created_at")
+    list_display = ("user","problem", "solved", "confidence", "created_at")
     list_filter = ("solved", "confidence")

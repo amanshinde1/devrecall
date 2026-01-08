@@ -62,10 +62,10 @@ class RecallLog(models.Model):
         on_delete=models.CASCADE,
         related_name="recall_logs"
     )
-    solved = models.BooleanField()
+    solved = models.BooleanField(default=False)
     confidence = models.PositiveSmallIntegerField()
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user} - {self.problem} - {self.created_at.date()}"
+        return f"{self.user} - {self.problem.title} - {self.created_at.date()}"
