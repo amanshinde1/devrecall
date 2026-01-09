@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Topic, Pattern, Problem
+from .models import Topic, Pattern, Problem, RecallLog
 
 
 class TopicSerializer(serializers.ModelSerializer):
@@ -37,5 +37,22 @@ class ProblemSerializer(serializers.ModelSerializer):
             'pattern',
             'difficulty',
             'external_link',
+            'created_at',
+        ]
+
+
+class RecallLogSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+    problem = serializers.StringRelatedField()
+
+    class Meta:
+        model = RecallLog
+        fields = [
+            'id',
+            'user',
+            'problem',
+            'solved',
+            'confidence',
+            'notes',
             'created_at',
         ]
