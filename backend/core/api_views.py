@@ -1,4 +1,5 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.permissions import IsAuthenticated
 from .models import Topic, Pattern, Problem, RecallLog
 from .serializers import (
     TopicSerializer,
@@ -29,6 +30,10 @@ class ProblemListAPIView(ListAPIView):
     serializer_class = ProblemSerializer
 
 
-class RecallLogListAPIView(ListAPIView):
-    queryset = RecallLog.objects.select_related('problem').order_by('-created_at')
+class RecallLogListCreateAPIView(ListAPIView, CreateAPIView):
+    queryset = RecallLog.objects.select_related("problem", "user").order_by("-created_at")
     serializer_class = RecallLogSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
