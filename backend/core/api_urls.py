@@ -1,5 +1,10 @@
 #api_urls.py
 from django.urls import path
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
 from .api_views import (
     TopicListAPIView,
     PatternListAPIView,
@@ -24,4 +29,9 @@ urlpatterns = [
         RecallLogDeleteAPIView.as_view(),
         name="api-recall-log-delete",
     ),
+    path('auth/login/', TokenObtainPairView.as_view(), name='jwt-login'),
+    path('auth/refresh/', TokenRefreshView.as_view(), name='jwt-refresh'),
+    path('auth/verify/', TokenVerifyView.as_view(), name='jwt-verify'),
+
+
 ]
