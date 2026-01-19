@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
+from datetime import timedelta
 
 
 class Topic(models.Model):
@@ -65,7 +67,40 @@ class RecallLog(models.Model):
     solved = models.BooleanField(default=False)
     confidence = models.PositiveSmallIntegerField()
     notes = models.TextField(blank=True, null=True)
+
+    # 🔥 PHASE 3 — SPACED REPETITION FIELDS
+    next_review_at = models.DateTimeField(null=True, blank=True)
+    priority_score = models.PositiveSmallIntegerField(default=0)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def calculate_review_schedule(self):
+        """
+        Simple, explainable spaced repetition logic.
+        """
+
+        confidence_intervals = {
+            1: 1,
+            2: 1,
+            3: 3,
+            4: 7,
+            5: 14,
+        }
+
+        days = confidence_intervals.get(self.confidence, 3)
+
+        # Unsolved problems need faster review
+        if not self.solved:
+            days = max(1, days // 2)
+
+        self.next_review_at = timezone.now() + timedelta(days=days)
+
+        # Higher = more urgent
+        self.priority_score = (5 - self.confidence) + (2 if not self.solved else 0)
+
+    def save(self, *args, **kwargs):
+        self.calculate_review_schedule()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.user} - {self.problem.title} - {self.created_at.date()}"
+        return f"{self.user} - {self.problem.title}"
