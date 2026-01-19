@@ -12,6 +12,7 @@ from .api_views import (
     RecallLogListCreateAPIView,
     RecallLogUpdateAPIView,
     RecallLogDeleteAPIView,
+    RecallSummaryAPIView,
 )
 
 urlpatterns = [
@@ -32,6 +33,12 @@ urlpatterns = [
     path('auth/login/', TokenObtainPairView.as_view(), name='jwt-login'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='jwt-refresh'),
     path('auth/verify/', TokenVerifyView.as_view(), name='jwt-verify'),
+    path(
+    "recall-logs/analytics/summary/",
+    RecallSummaryAPIView.as_view(),
+    name="api-recall-summary",
+),
+
 
 
 ]

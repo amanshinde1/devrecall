@@ -4,6 +4,8 @@ from rest_framework.generics import (
     RetrieveUpdateAPIView,
     DestroyAPIView,
 )
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Topic, Pattern, Problem, RecallLog
@@ -41,7 +43,7 @@ class ProblemListAPIView(ListAPIView):
 
 
 # --------------------
-# RECALL LOG APIs
+# RECALL LOG CRUD APIs
 # --------------------
 
 class RecallLogListCreateAPIView(ListAPIView, CreateAPIView):
@@ -53,6 +55,7 @@ class RecallLogListCreateAPIView(ListAPIView, CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        # Users can see only their own logs
         return RecallLog.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
@@ -67,14 +70,43 @@ class RecallLogUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        # Users can update only their own logs
         return RecallLog.objects.filter(user=self.request.user)
 
 
 class RecallLogDeleteAPIView(DestroyAPIView):
     """
-    DELETE /api/recall-logs/<id>/
+    DELETE /api/recall-logs/<id>/delete/
     """
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        # Users can delete only their own logs
         return RecallLog.objects.filter(user=self.request.user)
+
+
+# --------------------
+# RECALL INTELLIGENCE 
+# --------------------
+
+class RecallSummaryAPIView(APIView):
+    """
+    GET /api/recall-logs/analytics/summary/
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        logs = RecallLog.objects.filter(user=request.user)
+
+        total_attempts = logs.count()
+        solved_count = logs.filter(solved=True).count()
+
+        accuracy = 0
+        if total_attempts > 0:
+            accuracy = round((solved_count / total_attempts) * 100, 2)
+
+        return Response({
+            "total_attempts": total_attempts,
+            "solved": solved_count,
+            "accuracy": accuracy,
+        })
